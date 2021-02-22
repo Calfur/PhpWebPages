@@ -5,6 +5,7 @@
 @fifth-color: #4574a0;
 @font-color: white;
 @color-red: #c46566;
+@menu-color: #303036e5;
 
 body{
    background: linear-gradient(to bottom, @main-color, @fifth-color);
@@ -45,7 +46,14 @@ section{
    float: left;
 }
 .modal{
-   color: black;
+   color: white;
+   background-color: @menu-color;
+}
+.modal .modal-footer{
+   .btn-flat{
+      color: white;
+   }
+   background-color: transparent;
 }
 div.nav-wrapper, nav{
    background: rgba(0, 0, 0, 0) !important;
@@ -59,4 +67,7 @@ div.nav-wrapper, nav{
 .btn-red{
    background-color: @color-red;
    color: whitesmoke;
+   &:focus, &:hover{
+      background-color: @color-red;
+   }
 }
