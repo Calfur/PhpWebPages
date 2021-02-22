@@ -15,9 +15,9 @@
     
    <link rel="preconnect" href="https://fonts.gstatic.com">
    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-   <link rel="stylesheet/less" type="text/css" href="styles.less">
+   <link rel="stylesheet/less" type="text/css" href="style/styles.less">
    <script src="//cdn.jsdelivr.net/npm/less@3.13" ></script>
-   <script src="index.js" ></script>
+   <script src="js/index.js"></script>
    <title>Auto</title>
 </head>
 <body>
@@ -31,70 +31,19 @@
    </div>
    </nav>
    <section class="table-section">
-      <table class="car-table">
-         <thead>
-            <tr>
-               <th>Id</th>
-               <th>name</th>
-               <th>kraftstoff</th>
-               <th>farbe</th>
-               <th>bauart</th>
-               <th>betanken</th>
-               <th>mydate</th>
-               <th>action</th>
-            </tr>
-         </thead>
 
-         <tbody>
-            <tr>
-               <td>1</td>
-               <td>Passat</td>
-               <td>Diesel</td>
-               <td>
-                  <div class="color-preview"></div>
-                  #000000
-               </td>
-               <td>Limousine</td>
-               <td>0</td>
-               <td>2019-08-07</td>
-               <td>
-                  <a class="waves-effect waves-light btn">  
-                     <i class="material-icons">directions_car</i>
-                  </a>
-                  <a class="waves-effect waves-light btn">  
-                     <i class="material-icons">mode_edit</i>
-                  </a>
-                  <a class="waves-effect waves-light btn">  
-                     <i class="material-icons">delete_forever</i>
-                  </a>
-               </td>
-            </tr>
-            <tr>
-               <td>2</td>
-               <td>Honda</td>
-               <td>Benzin</td>
-               <td>
-                  <div class="color-preview"></div>
-                  #123456
-               </td>
-               <td>Bus</td>
-               <td>0</td>
-               <td>2019-08-07</td>
-               <td>
-                  <a class="waves-effect waves-light btn">  
-                     <i class="material-icons">directions_car</i>
-                  </a>
-                  <a class="waves-effect waves-light btn">  
-                     <i class="material-icons">mode_edit</i>
-                  </a>
-                  <a class="waves-effect waves-light btn">  
-                     <i class="material-icons">delete_forever</i>
-                  </a>
-               </td>
-            </tr>
-         </tbody>
-      </table>
    </section>
    <a class="waves-effect waves-light btn" href="../index.html">zurück</a>
+   
+   <!-- Modal Structure -->
+   <div id="modal1" class="modal">
+      <div class="modal-content">
+         <h4 id="modal-title">Modal Header</h4>
+         <p id="modal-text">Moin moin</p>
+      </div>
+      <div class="modal-footer">
+         <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+      </div>
+   </div>
 </body>
 </html>
