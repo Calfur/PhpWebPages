@@ -3,6 +3,7 @@ body{
     font-family: 'Ubuntu', sans-serif;
     color: white;
     font-size: 25px;
+    padding: 10px;
 }
 a{
     text-decoration: none;
