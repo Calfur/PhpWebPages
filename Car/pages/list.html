@@ -1,93 +1,76 @@
-<table class="car-table">
-   <thead>
-      <tr>
-         <th>Id</th>
-         <th>name</th>
-         <th>kraftstoff</th>
-         <th>farbe</th>
-         <th>bauart</th>
-         <th>betanken</th>
-         <th>mydate</th>
-         <th>action</th>
-      </tr>
-   </thead>
+<!-- Component: list -->
+<table class="car-table tablesorter">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Kraftstoff</th>
+            <th>Farbe</th>
+            <th>Bauart</th>
+            <th>Tank</th>
+            <th data-sorter="false">Action</th>
+        </tr>
+    </thead>
 
-   <tbody>
-      <tr>
-         <td>1</td>
-         <td>Passat</td>
-         <td>Diesel</td>
-         <td>
-            <div class="color-preview"></div>
-            #000000
-         </td>
-         <td>Limousine</td>
-         <td>0</td>
-         <td>2019-08-07</td>
-         <td data-dataset="1">
-            <a class="refuel-data waves-effect waves-light btn">  
-               <i class="material-icons">directions_car</i>
-            </a>
-            <a href="#modal1" class="edit-data waves-effect waves-light btn modal-trigger">  
-               <i class="material-icons">mode_edit</i>
-            </a>
-            <a class="delete-data waves-effect waves-light btn">  
-               <i class="material-icons">delete_forever</i>
-            </a>
-         </td>
-      </tr>
-      <tr>
-         <td>2</td>
-         <td>Honda</td>
-         <td>Benzin</td>
-         <td>
-            <div class="color-preview"></div>
-            #123456
-         </td>
-         <td>Bus</td>
-         <td>0</td>
-         <td>2019-08-07</td>
-         <td data-dataset="2">
-            <a class="refuel-data waves-effect waves-light btn">  
-               <i class="material-icons">directions_car</i>
-            </a>
-            <a href="#modal1" class="edit-data waves-effect waves-light btn modal-trigger">  
-               <i class="material-icons">mode_edit</i>
-            </a>
-            <a class="delete-data waves-effect waves-light btn">  
-               <i class="material-icons">delete_forever</i>
-            </a>
-         </td>
-      </tr>
-   </tbody>
+    <tbody id="table-body">
+        <!-- <tr>
+            <td>1</td>
+            <td>TESLA Model X</td>
+            <td>Elektro</td>
+            <td class="color-col">
+                <div class="color" style="background-color: #000000;">
+                </div>
+                <p style="color: #000000;">#000000</p>
+            </td>
+            <td>Limousine</td>
+            <td>0</td>
+            <td data-id="3">
+                <span class="material-icons blue-text mode-tanken">directions_car</span>
+                <span class="material-icons green-text mode-edit">mode_edit</span>
+                <span class="material-icons red-text mode-delete">delete</span>
+            </td>
+        </tr> -->
+    </tbody>
 </table>
 
-<script id="car-template" type="x-tmpl-mustache">
-   {{#data}}
-      {{#.}}
-         <tr>
-            <td>{{id}}</td>
-            <td>{{name}}</td>
-            <td>{{fuel}}</td>
-            <td>
-               <div class="color-preview" style="background-color:{{color}}"></div>
-               #{{color}}
-            </td>
-            <td>{{buildType}}</td>
-            <td>{{refueled}}</td>
-            <td>{{date}}</td>
-            <td data-dataset="{{id}}">
-               <a class="refuel-data waves-effect waves-light btn">  
-                  <i class="material-icons">directions_car</i>
-               </a>
-               <a href="#modal1" class="edit-data waves-effect waves-light btn modal-trigger">  
-                  <i class="material-icons">mode_edit</i>
-               </a>
-               <a class="delete-data waves-effect waves-light btn">  
-                  <i class="material-icons">delete_forever</i>
-               </a>
-            </td>
-         </td>
-      {{/.}}
-   {{/data}}
+<div class="row mt-2">
+    <div class="col s12 m6 l6">
+        <span id="total_reg"></span>
+    </div>
+
+    <div class="col s12 m6 l6 right-align">
+        <p class="me-2 inline">Limit:</p>
+        <button class="btn sort" data-value="1">1</button>
+        <button class="btn sort" data-value="5">5</button>
+        <button class="btn sort" data-value="10">10</button>
+        <button class="btn sort" data-value="20">20</button>
+        <button class="btn sort" data-value="0">ALL</button>
+    </div>
+</div>
+
+<div class="row mt-5 s12 m12 l12">
+    <ul class="center pagination pager" id="ul-pagination"></ul>
+</div>
+
+<!-- Mustache Template -->
+<script id="record-template" type="x-tmpl-mustache">
+    {{#data}} {{#.}}
+    <tr>
+        <td>{{id}}</td>
+        <td>{{name}}</td>
+        <td>{{kraftstoff}}</td>
+        <td class="color-col">
+            <div class="color" style="background-color: {{color}};">
+            </div>
+            <p style="color: {{color}};">{{color}}</p>
+        </td>
+        <td>{{bauart}}</td>
+        <td>{{tank}}</td>
+        <td data-id="{{id}}">
+            <span class="material-icons blue-text mode-tanken">directions_car</span>
+            <span class="material-icons green-text mode-edit">mode_edit</span>
+            <span class="material-icons red-text mode-delete">delete</span>
+        </td>
+    </tr>
+    {{/.}} {{/data}}
 </script>
