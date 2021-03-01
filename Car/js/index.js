@@ -134,19 +134,4 @@ function showDeleteModal(id) {
             instance.open();
         });
     });
-
-    // var check = confirm('Do you want to delete the record: ' + id + '?');
-
-    // if (check) {
-    //     $.ajax({
-    //         type: "GET",
-    //         url: "data/api.php?action=delete&id=" + id,
-    //         data: "",
-    //         dataType: "json",
-    //         success: function(response) {
-    //             console.log(response);
-    //             getData();
-    //         }
-    //     });
-    // }
 }
