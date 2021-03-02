@@ -5,7 +5,7 @@
 $(function() {
     // footer text with year
     var date = new Date();
-    $('#footer-text').html('© ' + date.getFullYear() + ' My Company');
+    $('#footer-text').html('© ' + date.getFullYear() + ' Robin Nater');
 
     // onclick events
     $('data-table').load("pages/list.html", function() {
