@@ -10,17 +10,43 @@
   // Die Daten werden in Variable gefüllt:
   //
 
-  $salutation = new SelectField("salutation", "Anrede", ["Herr", "Frau"]);
+  $salutation = new RadioSelectField("salutation", "Anrede", [
+    [
+      "name" => "mister",
+      "displayName" => "Herr"
+    ],
+    [
+      "name" => "miss",
+      "displayName" => "Frau"
+    ]
+  ]);
   $prename = new StringField("prename", "Vorname");
   $surname = new StringField("surname", "Nachname");
   $Email = (isset($_POST["Email"]) && !empty($_POST["Email"]) && filter_var($_POST['Email'], 513)) ? $_POST["Email"] : "";
-  $Anzahl = (isset($_POST["Anzahl"]) && !empty($_POST["Anzahl"])) ? $_POST["Anzahl"] : "";
+  $amount = new SelectField("amount", "Anzahl Karten", [
+    [
+      "name" => "1",
+      "displayName" => "1"
+    ],
+    [
+      "name" => "2",
+      "displayName" => "2"
+    ],
+    [
+      "name" => "3",
+      "displayName" => "3"
+    ],
+    [
+      "name" => "4",
+      "displayName" => "4"
+    ]
+  ], false, 1);
   $Promo = (isset($_POST["Promo"]) && !empty($_POST["Promo"]) && filter_var($_POST['Promo'], 513)) ? $_POST["Promo"] : "";
   $Sektion = (isset($_POST["Sektion"]) && !empty($_POST["Sektion"]) && is_array($_POST["Sektion"])) ? $_POST["Sektion"] : array();
   $Kommentare = (isset($_POST["Kommentare"]) && !empty($_POST["Kommentare"]) && filter_var($_POST['Kommentare'], 513)) ? $_POST["Kommentare"] : "";
   $agb = new BooleanField("agb", "AGB");
 
-  $fields = array($salutation, $prename, $surname, $agb);
+  $fields = array($salutation, $prename, $surname, $amount, $agb);
   $ok = false;
   $validationErrors = array();
 
@@ -38,7 +64,7 @@
       displayUserInput($surname->getValue(), $surname->getDisplayName());
       displayUserInput($Email, "E-Mail");
       displayUserInput($Promo, "Promo");
-      displayUserInput($Anzahl, "Anzahl Karten");
+      displayUserInput($amount->getValue(), $amount->getDisplayName());
       displayUserInput(implode(", ", $Sektion), "Sektion");
       displayUserInput($Kommentare, "Kommentare");
       displayUserInput($agb->getValue(), $agb->getDisplayName());
@@ -72,10 +98,6 @@
     if (!isset($_POST["Promo"]) || empty($_POST["Promo"]) || !filter_var($_POST['Promo'], 513) || trim($_POST["Promo"]) == "") {
       $ok = false;
       $validationErrors[] = "Promo";
-    }
-    if (!isset($_POST["Anzahl"]) || empty($_POST["Anzahl"]) || !filter_var($_POST['Anzahl'], 513) || $_POST["Anzahl"] == "0") {
-      $ok = false;
-      $validationErrors[] = "Anzahl Karten";
     }
     if (!isset($_POST["Sektion"]) || empty($_POST["Sektion"]) || !is_array($_POST["Sektion"])) {
       $ok = false;
@@ -121,30 +143,11 @@
       Promo-Code <input type="password" name="Promo" value="<?php
                                                             echo htmlspecialchars($Promo);
                                                             ?>" /><br />
-      Anzahl Karten
-      <select name="Anzahl">
-        <option value="0">Bitte w&auml;hlen</option>
-        <option value="1" <?php
-                          if ($Anzahl == "1") {
-                            echo " selected=\"selected\"";
-                          }
-                          ?>>1</option>
-        <option value="2" <?php
-                          if ($Anzahl == "2") {
-                            echo " selected=\"selected\"";
-                          }
-                          ?>>2</option>
-        <option value="3" <?php
-                          if ($Anzahl == "3") {
-                            echo " selected=\"selected\"";
-                          }
-                          ?>>3</option>
-        <option value="4" <?php
-                          if ($Anzahl == "4") {
-                            echo " selected=\"selected\"";
-                          }
-                          ?>>4</option>
-      </select><br />
+
+      <?php
+      $amount->displayAsFormElement();
+      ?>
+
       Gew&uuml;nschte Sektion im Stadion
       <select name="Sektion[]" size="4" multiple="multiple">
         <option value="nord" <?php
@@ -182,8 +185,8 @@
 
   abstract class Field
   {
-    protected $name;
-    protected $displayName;
+    protected string $name;
+    protected string $displayName;
 
     function __construct($name, $displayName)
     {
@@ -209,15 +212,15 @@
     public function isValid(&$validationErrors = array())
     {
       if (!isset($_POST[$this->name])) {
-        $validationErrors[] = "Der Input $this->displayName ist nicht ausgefüllt";
+        $validationErrors[] = "Der Input '$this->displayName' ist nicht ausgefüllt";
         return false;
       }
       if (empty($_POST[$this->name])) {
-        $validationErrors[] = "Der Input $this->displayName ist leer";
+        $validationErrors[] = "Der Input '$this->displayName' ist leer";
         return false;
       }
       if (!filter_var($_POST[$this->name], 513)) {
-        $validationErrors[] = "Die Eingabe vom Input $this->displayName ist nicht gültig";
+        $validationErrors[] = "Die Eingabe vom Input '$this->displayName' ist nicht gültig";
         return false;
       }
       return true;
@@ -247,8 +250,7 @@
     public function displayAsFormElement()
     {
       parent::displayLabel();
-      echo  
-        "<input 
+      echo "<input 
           type='checkbox' 
           name='" . $this->name . "'
           " . ($this->getValue() ? "checked" : "") . "/>
@@ -275,8 +277,7 @@
     public function displayAsFormElement()
     {
       parent::displayLabel();
-      echo
-        "<input 
+      echo "<input 
           type='text' 
           name='" . $this->name . "' 
           value='" . $this->getValue() . "'/>
@@ -284,14 +285,14 @@
     }
   }
 
-  class SelectField extends Field
+  class RadioSelectField extends Field
   {
-    protected $selectableValues;
+    protected array $selectables;
 
-    function __construct($name, $displayName, $selectableValues)
+    function __construct($name, $displayName, $selectables)
     {
       parent::__construct($name, $displayName);
-      $this->selectableValues = $selectableValues;
+      $this->selectables = $selectables;
     }
 
     public function isValid(&$validationErrors = array())
@@ -300,7 +301,7 @@
         return false;
       }
 
-      if (!in_array($_POST[$this->name], $this->selectableValues)) {
+      if (!in_array($_POST[$this->name], $this->selectables)) {
         $validationErrors[] = "Ungültiger wert für " . $this->displayName . " ausgewählt.";
         return false;
       }
@@ -312,24 +313,53 @@
     {
       parent::displayLabel();
 
-      foreach ($this->selectableValues as $selectableValue) {
-        echo 
-          "<input 
+      foreach ($this->selectables as $selectable) {
+        echo "<input 
             type='radio' 
             name='" . $this->name . "' 
-            value='" . $selectableValue . "'
-            " . ($this->getValue() == $selectableValue ? "checked" : "") . " />
-          " . $selectableValue;
+            value='" . $selectable["name"] . "'
+            " . ($this->getValue() == $selectable["name"] ? "checked" : "") . " />
+          " . $selectable["displayName"];
       }
 
       echo "<br />";
     }
   }
 
-  // class MultiselectField extends Field
-  // {
+  class SelectField extends Field
+  {
+    protected array $selectables;
+    protected bool $allowMultiple;
+    protected int $size;
 
-  // }
+    function __construct($name, $displayName, $selectables, $allowMultiple, $size)
+    {
+      parent::__construct($name, $displayName);
+      $this->selectables = $selectables;
+      $this->allowMultiple = $allowMultiple;
+      $this->size = $size;
+    }
+
+    public function displayAsFormElement()
+    {
+      parent::displayLabel();
+
+      echo "<select 
+          name='" . $this->name . "'
+          " . ($this->allowMultiple ? "multiple='multiple'" : "") . " 
+          size='" . $this->size . "'>";
+
+      foreach ($this->selectables as $selectable) {
+        echo "<option value='" . $selectable["name"] . "'
+            " . ($this->getValue() == $selectable["name"] ? "selected" : "") . "> 
+            " . $selectable["displayName"] .
+          "</option>";
+      }
+
+      echo "</select><br />";
+    }
+  }
+
 
   // class ParagraphField extends Field
   // {
