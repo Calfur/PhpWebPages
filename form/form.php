@@ -255,11 +255,6 @@
 
   class BooleanField extends Field
   {
-    function __construct($name, $displayName)
-    {
-      parent::__construct($name, $displayName);
-    }
-
     public function getValue()
     {
       return isset($_POST[$this->name]);
@@ -284,11 +279,6 @@
 
   class StringField extends Field
   {
-    function __construct($name, $displayName)
-    {
-      parent::__construct($name, $displayName);
-    }
-
     public function isValid(&$validationErrors = array())
     {
       if (!parent::isValid($validationErrors)) {
