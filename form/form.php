@@ -9,20 +9,23 @@
   //
   // Die Daten werden in Variable gefüllt:
   //
+
   $Anrede = (isset($_POST["Anrede"]) && !empty($_POST["Anrede"]) && filter_var($_POST['Anrede'], 513)) ? $_POST["Anrede"] : "";
   $prename = new StringField("prename", "Vorname");
-  $Nachname = (isset($_POST["Nachname"]) && !empty($_POST["Nachname"]) && filter_var($_POST['Nachname'], 513)) ? $_POST["Nachname"] : "";
+  $surname = new StringField("surname", "Nachname");
   $Email = (isset($_POST["Email"]) && !empty($_POST["Email"]) && filter_var($_POST['Email'], 513)) ? $_POST["Email"] : "";
   $Anzahl = (isset($_POST["Anzahl"]) && !empty($_POST["Anzahl"])) ? $_POST["Anzahl"] : "";
   $Promo = (isset($_POST["Promo"]) && !empty($_POST["Promo"]) && filter_var($_POST['Promo'], 513)) ? $_POST["Promo"] : "";
   $Sektion = (isset($_POST["Sektion"]) && !empty($_POST["Sektion"]) && is_array($_POST["Sektion"])) ? $_POST["Sektion"] : array();
   $Kommentare = (isset($_POST["Kommentare"]) && !empty($_POST["Kommentare"]) && filter_var($_POST['Kommentare'], 513)) ? $_POST["Kommentare"] : "";
-  $agb = new StringField("agb", "AGB");
+  $agb = new BooleanField("agb", "AGB");
+
+  $fields = array($prename, $surname, $agb);
   $ok = false;
   $validationErrors = array();
 
   if (filledFormGotReturned()) {
-    $ok = validateForm($validationErrors);
+    $ok = validateFields($fields, $validationErrors);
 
     if ($ok) {
   ?>
@@ -32,7 +35,7 @@
 
       displayUserInput($Anrede, "Anrede");
       displayUserInput($prename->getValue(), $prename->getDisplayName());
-      displayUserInput($Nachname, "Nachname");
+      displayUserInput($surname->getValue(), $surname->getDisplayName());
       displayUserInput($Email, "E-Mail");
       displayUserInput($Promo, "Promo");
       displayUserInput($Anzahl, "Anzahl Karten");
@@ -49,12 +52,16 @@
     return isset($_POST["Submit"]) && !empty($_POST["Submit"]);
   }
 
-  function validateForm(&$validationErrors)
+  function validateFields($fields, &$validationErrors)
   {
     $ok = true;
-    //
-    // Die Eingabewerte werden überprüft:
-    //
+
+    foreach ($fields as $field) {
+      if ($field->isValid($validationErrors)) {
+        $ok = false;
+      }
+    }
+
     $AnredeArr = array('Hr.', 'Fr.');
     $tmpIo = false;
     if (!isset($_POST["Anrede"]) || empty($_POST["Anrede"]) || !filter_var($_POST['Anrede'], 513)) {
@@ -74,14 +81,6 @@
       }
     }
 
-    if (!isset($_POST["prename"]) || empty($_POST["prename"]) || !filter_var($_POST['prename'], 513) || trim($_POST["prename"]) == "") {
-      $ok = false;
-      $validationErrors[] = "prename";
-    }
-    if (!isset($_POST["Nachname"]) || empty($_POST["Nachname"]) || !filter_var($_POST['Nachname'], 513) || trim($_POST["Nachname"]) == "") {
-      $ok = false;
-      $validationErrors[] = "Nachname";
-    }
     if (
       !isset($_POST["Email"]) || empty($_POST["Email"]) || trim($_POST["Email"]) == "" ||
       !preg_match('/^[a-zA-Z0-9_\-.]+@[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,6}$/', $_POST["Email"])
@@ -104,10 +103,6 @@
     if (!isset($_POST["Kommentare"]) || empty($_POST["Kommentare"]) || !filter_var($_POST['Kommentare'], 513) || trim($_POST["Kommentare"]) == "") {
       $ok = false;
       $validationErrors[] = "Kommentare";
-    }
-    if (!isset($_POST["AGB"]) || empty($_POST["AGB"]) || !filter_var($_POST['AGB'], 513)) {
-      $ok = false;
-      $validationErrors[] = "AGB";
     }
 
     return $ok;
@@ -144,12 +139,10 @@
                                                       echo "checked=\"checked\" ";
                                                     }
                                                     ?> />Frau <br />
-      Vorname <input type="text" name="prename" value="<?php
-                                                        echo $prename->getValue();
-                                                        ?>" /><br />
-      Nachname <input type="text" name="Nachname" value="<?php
-                                                          echo htmlspecialchars($Nachname);
-                                                          ?>" /><br />
+      <?php
+      $prename->displayAsFormElement();
+      $surname->displayAsFormElement();
+      ?>
       E-Mail-Adresse <input type="text" name="Email" value="<?php
                                                             echo htmlspecialchars($Email);
                                                             ?>" /><br />
@@ -207,17 +200,14 @@
       <textarea cols="70" rows="10" name="Kommentare"><?php
                                                       echo htmlspecialchars($Kommentare);
                                                       ?></textarea><br />
-      <input type="checkbox" name="AGB" value="ok" <?php
-                                                    if ($agb != "") {
-                                                      echo "checked=\"checked\" ";
-                                                    }
-                                                    ?> />
-      Ich akzeptiere die AGB.<br />
+      <?php
+      $agb->displayAsFormElement();
+      ?>
       <input type="submit" name="Submit" value="Bestellung aufgeben" />
     </form>
   <?php
   }
-  class Field
+  abstract class Field
   {
     protected $name;
     protected $displayName;
@@ -259,10 +249,37 @@
       }
       return true;
     }
+
+    abstract public function displayAsFormElement();
   }
 
   class BooleanField extends Field
   {
+    function __construct($name, $displayName)
+    {
+      parent::__construct($name, $displayName);
+    }
+
+    public function getValue()
+    {
+      return isset($_POST[$this->name]);
+    }
+
+    public function isValid(&$validationErrors = array())
+    {
+      // Booleans are always valid
+      return true;
+    }
+
+    public function displayAsFormElement()
+    {
+      echo "<label for='" . $this->name . "'>" . $this->displayName . "</label> 
+            <input 
+              type='checkbox' 
+              name='" . $this->name . "'
+              " . ($this->getValue() ? "checked" : "") . "/>
+            <br />";
+    }
   }
 
   class StringField extends Field
@@ -284,6 +301,16 @@
       }
 
       return true;
+    }
+
+    public function displayAsFormElement()
+    {
+      echo "<label for='" . $this->name . "'>" . $this->displayName . "</label> 
+            <input 
+              type='text' 
+              name='" . $this->name . "' 
+              value='" . $this->getValue() . "'/>
+            <br />";
     }
   }
   ?>
