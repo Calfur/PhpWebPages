@@ -42,11 +42,28 @@
     ]
   ], false, 1);
   $Promo = (isset($_POST["Promo"]) && !empty($_POST["Promo"]) && filter_var($_POST['Promo'], 513)) ? $_POST["Promo"] : "";
-  $Sektion = (isset($_POST["Sektion"]) && !empty($_POST["Sektion"]) && is_array($_POST["Sektion"])) ? $_POST["Sektion"] : array();
+  $section = new SelectField("section", "Gew&uuml;nschte Sektion im Stadion", [
+    [
+      "name" => "north",
+      "displayName" => "Nordkurve"
+    ],
+    [
+      "name" => "south",
+      "displayName" => "Südkurve"
+    ],
+    [
+      "name" => "mainStand",
+      "displayName" => "Haupttribüne"
+    ],
+    [
+      "name" => "oppositeStand",
+      "displayName" => "Gegentribüne"
+    ]
+  ], true, 4);
   $Kommentare = (isset($_POST["Kommentare"]) && !empty($_POST["Kommentare"]) && filter_var($_POST['Kommentare'], 513)) ? $_POST["Kommentare"] : "";
   $agb = new BooleanField("agb", "AGB");
 
-  $fields = array($salutation, $prename, $surname, $amount, $agb);
+  $fields = array($salutation, $prename, $surname, $amount, $section, $agb);
   $ok = false;
   $validationErrors = array();
 
@@ -65,7 +82,7 @@
       displayUserInput($Email, "E-Mail");
       displayUserInput($Promo, "Promo");
       displayUserInput($amount->getValue(), $amount->getDisplayName());
-      displayUserInput(implode(", ", $Sektion), "Sektion");
+      displayUserInput($section->getValue(), $section->getDisplayName());
       displayUserInput($Kommentare, "Kommentare");
       displayUserInput($agb->getValue(), $agb->getDisplayName());
     } else {
@@ -98,10 +115,6 @@
     if (!isset($_POST["Promo"]) || empty($_POST["Promo"]) || !filter_var($_POST['Promo'], 513) || trim($_POST["Promo"]) == "") {
       $ok = false;
       $validationErrors[] = "Promo";
-    }
-    if (!isset($_POST["Sektion"]) || empty($_POST["Sektion"]) || !is_array($_POST["Sektion"])) {
-      $ok = false;
-      $validationErrors[] = "Sektion";
     }
     if (!isset($_POST["Kommentare"]) || empty($_POST["Kommentare"]) || !filter_var($_POST['Kommentare'], 513) || trim($_POST["Kommentare"]) == "") {
       $ok = false;
@@ -146,31 +159,9 @@
 
       <?php
       $amount->displayAsFormElement();
+      $section->displayAsFormElement();
       ?>
 
-      Gew&uuml;nschte Sektion im Stadion
-      <select name="Sektion[]" size="4" multiple="multiple">
-        <option value="nord" <?php
-                              if (in_array("nord", $Sektion)) {
-                                echo " selected=\"selected\"";
-                              }
-                              ?>>Nordkurve</option>
-        <option value="sued" <?php
-                              if (in_array("sued", $Sektion)) {
-                                echo " selected=\"selected\"";
-                              }
-                              ?>>S&uuml;dkurve</option>
-        <option value="haupt" <?php
-                              if (in_array("haupt", $Sektion)) {
-                                echo " selected=\"selected\"";
-                              }
-                              ?>>Haupttrib&uuml;ne</option>
-        <option value="gegen" <?php
-                              if (in_array("gegen", $Sektion)) {
-                                echo " selected=\"selected\"";
-                              }
-                              ?>>Gegentrib&uuml;ne</option>
-      </select><br />
       Kommentare/Anmerkungen
       <textarea cols="70" rows="10" name="Kommentare"><?php
                                                       echo htmlspecialchars($Kommentare);
@@ -301,8 +292,8 @@
         return false;
       }
 
-      if (!in_array($_POST[$this->name], $this->selectables)) {
-        $validationErrors[] = "Ungültiger wert für " . $this->displayName . " ausgewählt.";
+      if (!in_array($_POST[$this->name], array_column($this->selectables, "name"))) {
+        $validationErrors[] = "Ungültiger Wert für " . $this->displayName . " ausgewählt.";
         return false;
       }
 
@@ -336,8 +327,38 @@
     {
       parent::__construct($name, $displayName);
       $this->selectables = $selectables;
+      if($size == 1){
+        array_unshift($this->selectables, [
+          "name" => "0",
+          "displayName" => "Bitte wählen"
+        ]);
+      }
       $this->allowMultiple = $allowMultiple;
       $this->size = $size;
+    }
+
+    public function getValue()
+    {
+      return $this->isValid() ? $_POST[$this->name] : array();
+    }
+
+    public function isValid(&$validationErrors = array())
+    {
+      if (!isset($_POST[$this->name])) {
+        $validationErrors[] = "Der Input '$this->displayName' ist nicht ausgefüllt";
+        return false;
+      }
+      if (empty($_POST[$this->name])) {
+        $validationErrors[] = "Der Input '$this->displayName' ist leer";
+        return false;
+      }
+
+      if($this->allowMultiple && !is_array($_POST[$this->name])){
+        $validationErrors[] = "Ungültige Werte für " . $this->displayName . " ausgewählt.";
+        return false;
+      }
+
+      return true;
     }
 
     public function displayAsFormElement()
@@ -345,21 +366,31 @@
       parent::displayLabel();
 
       echo "<select 
-          name='" . $this->name . "'
+          name='" . $this->name . ($this->allowMultiple ? "[]" : "") . "'
           " . ($this->allowMultiple ? "multiple='multiple'" : "") . " 
           size='" . $this->size . "'>";
 
       foreach ($this->selectables as $selectable) {
         echo "<option value='" . $selectable["name"] . "'
-            " . ($this->getValue() == $selectable["name"] ? "selected" : "") . "> 
+            " . ($this->isSelected($selectable["name"]) ? "selected" : "") . "> 
             " . $selectable["displayName"] .
           "</option>";
       }
 
       echo "</select><br />";
     }
-  }
 
+    private function isSelected($value) : bool
+    {
+      if($this->allowMultiple)
+      {
+        return in_array($value, $this->getValue());
+      } else
+      {
+        return $value == $this->getValue();
+      }      
+    }
+  }
 
   // class ParagraphField extends Field
   // {
