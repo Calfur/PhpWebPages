@@ -10,14 +10,14 @@
   // Die Daten werden in Variable gefüllt:
   //
   $Anrede = (isset($_POST["Anrede"]) && !empty($_POST["Anrede"]) && filter_var($_POST['Anrede'], 513)) ? $_POST["Anrede"] : "";
-  $Vorname = new StringField("Vorname", "Vorname");
+  $prename = new StringField("prename", "Vorname");
   $Nachname = (isset($_POST["Nachname"]) && !empty($_POST["Nachname"]) && filter_var($_POST['Nachname'], 513)) ? $_POST["Nachname"] : "";
   $Email = (isset($_POST["Email"]) && !empty($_POST["Email"]) && filter_var($_POST['Email'], 513)) ? $_POST["Email"] : "";
   $Anzahl = (isset($_POST["Anzahl"]) && !empty($_POST["Anzahl"])) ? $_POST["Anzahl"] : "";
   $Promo = (isset($_POST["Promo"]) && !empty($_POST["Promo"]) && filter_var($_POST['Promo'], 513)) ? $_POST["Promo"] : "";
   $Sektion = (isset($_POST["Sektion"]) && !empty($_POST["Sektion"]) && is_array($_POST["Sektion"])) ? $_POST["Sektion"] : array();
   $Kommentare = (isset($_POST["Kommentare"]) && !empty($_POST["Kommentare"]) && filter_var($_POST['Kommentare'], 513)) ? $_POST["Kommentare"] : "";
-  $AGB = (isset($_POST["AGB"]) && !empty($_POST["AGB"]) && filter_var($_POST['AGB'], 513)) ? $_POST["AGB"] : "";
+  $agb = new StringField("agb", "AGB");
   $ok = false;
   $validationErrors = array();
 
@@ -25,30 +25,32 @@
     $ok = validateForm($validationErrors);
 
     if ($ok) {
-      ?>
-        <h1>Bestätigung</h1>
-        <p>Ihre Bestellung für WM-Tickets wurde mit den folgenden Daten angenommen:</p>
-      <?php
-      
+  ?>
+      <h1>Bestätigung</h1>
+      <p>Ihre Bestellung für WM-Tickets wurde mit den folgenden Daten angenommen:</p>
+    <?php
+
       displayUserInput($Anrede, "Anrede");
-      displayUserInput($Vorname->getValue(), "Vorname");
+      displayUserInput($prename->getValue(), $prename->getDisplayName());
       displayUserInput($Nachname, "Nachname");
       displayUserInput($Email, "E-Mail");
       displayUserInput($Promo, "Promo");
       displayUserInput($Anzahl, "Anzahl Karten");
       displayUserInput(implode(", ", $Sektion), "Sektion");
       displayUserInput($Kommentare, "Kommentare");
-      displayUserInput($AGB, "AGB");
+      displayUserInput($agb->getValue(), $agb->getDisplayName());
     } else {
       displayValidationErrors($validationErrors);
     }
   }
 
-  function filledFormGotReturned(){
+  function filledFormGotReturned()
+  {
     return isset($_POST["Submit"]) && !empty($_POST["Submit"]);
   }
 
-  function validateForm(&$validationErrors){
+  function validateForm(&$validationErrors)
+  {
     $ok = true;
     //
     // Die Eingabewerte werden überprüft:
@@ -72,9 +74,9 @@
       }
     }
 
-    if (!isset($_POST["Vorname"]) || empty($_POST["Vorname"]) || !filter_var($_POST['Vorname'], 513) || trim($_POST["Vorname"]) == "") {
+    if (!isset($_POST["prename"]) || empty($_POST["prename"]) || !filter_var($_POST['prename'], 513) || trim($_POST["prename"]) == "") {
       $ok = false;
-      $validationErrors[] = "Vorname";
+      $validationErrors[] = "prename";
     }
     if (!isset($_POST["Nachname"]) || empty($_POST["Nachname"]) || !filter_var($_POST['Nachname'], 513) || trim($_POST["Nachname"]) == "") {
       $ok = false;
@@ -111,12 +113,14 @@
     return $ok;
   }
 
-  function displayUserInput($input, $inputName){
+  function displayUserInput($input, $inputName)
+  {
     $input = nl2br(htmlspecialchars($input));
     echo "<b>$inputName:</b> $input<br />";
   }
 
-  function displayValidationErrors($validationErrors){
+  function displayValidationErrors($validationErrors)
+  {
     echo "<p><b>Formular unvollst&auml;ndig</b></p>";
     echo "<ul><li>";
     echo implode("</li><li>", $validationErrors);
@@ -140,8 +144,8 @@
                                                       echo "checked=\"checked\" ";
                                                     }
                                                     ?> />Frau <br />
-      Vorname <input type="text" name="Vorname" value="<?php
-                                                        echo $Vorname->getValue();
+      Vorname <input type="text" name="prename" value="<?php
+                                                        echo $prename->getValue();
                                                         ?>" /><br />
       Nachname <input type="text" name="Nachname" value="<?php
                                                           echo htmlspecialchars($Nachname);
@@ -204,7 +208,7 @@
                                                       echo htmlspecialchars($Kommentare);
                                                       ?></textarea><br />
       <input type="checkbox" name="AGB" value="ok" <?php
-                                                    if ($AGB != "") {
+                                                    if ($agb != "") {
                                                       echo "checked=\"checked\" ";
                                                     }
                                                     ?> />
@@ -213,61 +217,72 @@
     </form>
   <?php
   }
-  class Field{
+  class Field
+  {
     protected $name;
     protected $displayName;
 
-    function __construct($name, $displayName) {
+    function __construct($name, $displayName)
+    {
       $this->name = $name;
       $this->displayName = $displayName;
     }
 
-    public function getName(){
+    public function getName()
+    {
       return $this->name;
     }
 
-    public function getDisplayName(){
+    public function getDisplayName()
+    {
       return $this->displayName;
     }
 
-    public function getValue(){
+    public function getValue()
+    {
       return htmlspecialchars($this->isValid() ? $_POST[$this->name] : "");
     }
 
-    public function isValid(&$validationErrors = array()){
+    public function isValid(&$validationErrors = array())
+    {
       if (!isset($_POST[$this->name])) {
-        $validationErrors[] = "Das Feld $this->name ist nicht gesetzt";
+        $validationErrors[] = "Das Feld $this->displayName ist nicht gesetzt";
         return false;
       }
       if (empty($_POST[$this->name])) {
-        $validationErrors[] = "Das Feld $this->name ist leer";
+        $validationErrors[] = "Das Feld $this->displayName ist leer";
         return false;
       }
       if (!filter_var($_POST[$this->name], 513)) {
-        $validationErrors[] = "Die Eingabe vom Feld $this->name ist nicht gültig";
+        $validationErrors[] = "Die Eingabe vom Feld $this->displayName ist nicht gültig";
         return false;
       }
       return true;
     }
   }
 
-  class BooleanField extends Field{
-    
+  class BooleanField extends Field
+  {
   }
-  class StringField extends Field{
-    function __construct($name, $displayName) {
+
+  class StringField extends Field
+  {
+    function __construct($name, $displayName)
+    {
       parent::__construct($name, $displayName);
     }
 
-    public function isValid(&$validationErrors = array()){
-      $isValid = parent::isValid($validationErrors);
-      if(!$isValid){
+    public function isValid(&$validationErrors = array())
+    {
+      if (!parent::isValid($validationErrors)) {
         return false;
       }
-      if(trim($_POST[$this->name]) == ""){
-        $validationErrors[] = "Das Feld $this->name ist leer";
+
+      if (trim($_POST[$this->name]) == "") {
+        $validationErrors[] = "Das Feld $this->displayName ist leer";
         return false;
       }
+
       return true;
     }
   }
