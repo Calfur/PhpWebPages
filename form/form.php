@@ -10,7 +10,7 @@
   // Die Daten werden in Variable gefüllt:
   //
   $Anrede = (isset($_POST["Anrede"]) && !empty($_POST["Anrede"]) && filter_var($_POST['Anrede'], 513)) ? $_POST["Anrede"] : "";
-  $Vorname = (isset($_POST["Vorname"]) && !empty($_POST["Vorname"]) && filter_var($_POST['Vorname'], 513)) ? $_POST["Vorname"] : "";
+  $Vorname = new StringField("Vorname", "Vorname");
   $Nachname = (isset($_POST["Nachname"]) && !empty($_POST["Nachname"]) && filter_var($_POST['Nachname'], 513)) ? $_POST["Nachname"] : "";
   $Email = (isset($_POST["Email"]) && !empty($_POST["Email"]) && filter_var($_POST['Email'], 513)) ? $_POST["Email"] : "";
   $Anzahl = (isset($_POST["Anzahl"]) && !empty($_POST["Anzahl"])) ? $_POST["Anzahl"] : "";
@@ -31,7 +31,7 @@
       <?php
       
       displayUserInput($Anrede, "Anrede");
-      displayUserInput($Vorname, "Vorname");
+      displayUserInput($Vorname->getValue(), "Vorname");
       displayUserInput($Nachname, "Nachname");
       displayUserInput($Email, "E-Mail");
       displayUserInput($Promo, "Promo");
@@ -141,7 +141,7 @@
                                                     }
                                                     ?> />Frau <br />
       Vorname <input type="text" name="Vorname" value="<?php
-                                                        echo htmlspecialchars($Vorname);
+                                                        echo $Vorname->getValue();
                                                         ?>" /><br />
       Nachname <input type="text" name="Nachname" value="<?php
                                                           echo htmlspecialchars($Nachname);
@@ -212,6 +212,64 @@
       <input type="submit" name="Submit" value="Bestellung aufgeben" />
     </form>
   <?php
+  }
+  class Field{
+    protected $name;
+    protected $displayName;
+
+    function __construct($name, $displayName) {
+      $this->name = $name;
+      $this->displayName = $displayName;
+    }
+
+    public function getName(){
+      return $this->name;
+    }
+
+    public function getDisplayName(){
+      return $this->displayName;
+    }
+
+    public function getValue(){
+      return htmlspecialchars($this->isValid() ? $_POST[$this->name] : "");
+    }
+
+    public function isValid(&$validationErrors = array()){
+      if (!isset($_POST[$this->name])) {
+        $validationErrors[] = "Das Feld $this->name ist nicht gesetzt";
+        return false;
+      }
+      if (empty($_POST[$this->name])) {
+        $validationErrors[] = "Das Feld $this->name ist leer";
+        return false;
+      }
+      if (!filter_var($_POST[$this->name], 513)) {
+        $validationErrors[] = "Die Eingabe vom Feld $this->name ist nicht gültig";
+        return false;
+      }
+      return true;
+    }
+  }
+
+  class BooleanField extends Field{
+    
+  }
+  class StringField extends Field{
+    function __construct($name, $displayName) {
+      parent::__construct($name, $displayName);
+    }
+
+    public function isValid(&$validationErrors = array()){
+      $isValid = parent::isValid($validationErrors);
+      if(!$isValid){
+        return false;
+      }
+      if(trim($_POST[$this->name]) == ""){
+        $validationErrors[] = "Das Feld $this->name ist leer";
+        return false;
+      }
+      return true;
+    }
   }
   ?>
 </body>
