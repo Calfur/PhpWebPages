@@ -10,7 +10,7 @@
   // Die Daten werden in Variable gefüllt:
   //
 
-  $Anrede = (isset($_POST["Anrede"]) && !empty($_POST["Anrede"]) && filter_var($_POST['Anrede'], 513)) ? $_POST["Anrede"] : "";
+  $salutation = new SelectField("salutation", "Anrede", ["Herr", "Frau"]);
   $prename = new StringField("prename", "Vorname");
   $surname = new StringField("surname", "Nachname");
   $Email = (isset($_POST["Email"]) && !empty($_POST["Email"]) && filter_var($_POST['Email'], 513)) ? $_POST["Email"] : "";
@@ -20,7 +20,7 @@
   $Kommentare = (isset($_POST["Kommentare"]) && !empty($_POST["Kommentare"]) && filter_var($_POST['Kommentare'], 513)) ? $_POST["Kommentare"] : "";
   $agb = new BooleanField("agb", "AGB");
 
-  $fields = array($prename, $surname, $agb);
+  $fields = array($salutation, $prename, $surname, $agb);
   $ok = false;
   $validationErrors = array();
 
@@ -33,7 +33,7 @@
       <p>Ihre Bestellung für WM-Tickets wurde mit den folgenden Daten angenommen:</p>
     <?php
 
-      displayUserInput($Anrede, "Anrede");
+      displayUserInput($salutation->getValue(), $salutation->getDisplayName());
       displayUserInput($prename->getValue(), $prename->getDisplayName());
       displayUserInput($surname->getValue(), $surname->getDisplayName());
       displayUserInput($Email, "E-Mail");
@@ -59,25 +59,6 @@
     foreach ($fields as $field) {
       if ($field->isValid($validationErrors)) {
         $ok = false;
-      }
-    }
-
-    $AnredeArr = array('Hr.', 'Fr.');
-    $tmpIo = false;
-    if (!isset($_POST["Anrede"]) || empty($_POST["Anrede"]) || !filter_var($_POST['Anrede'], 513)) {
-      $ok = false;
-      $validationErrors[] = "Anrede";
-    } else {
-      // Anrede ist gesetzt und ist ein String
-      foreach ($AnredeArr as $anr) {
-        if (strcmp($anr, $_POST["Anrede"])) {
-          $tmpIo = true;
-        }
-      }
-      if (!$tmpIo) {
-        // Anrede enthält weder Hr. noch Fr. 
-        $ok = false;
-        $validationErrors[] = "Anrede";
       }
     }
 
@@ -129,17 +110,8 @@
     ?>
     <h1>WM-Ticketservice</h1>
     <form method="post">
-      <input type="radio" name="Anrede" value="Hr." <?php
-                                                    if ($Anrede == "Hr.") {
-                                                      echo "checked=\"checked\" ";
-                                                    }
-                                                    ?> />Herr
-      <input type="radio" name="Anrede" value="Fr." <?php
-                                                    if ($Anrede == "Fr.") {
-                                                      echo "checked=\"checked\" ";
-                                                    }
-                                                    ?> />Frau <br />
       <?php
+      $salutation->displayAsFormElement();
       $prename->displayAsFormElement();
       $surname->displayAsFormElement();
       ?>
@@ -207,6 +179,7 @@
     </form>
   <?php
   }
+
   abstract class Field
   {
     protected $name;
@@ -236,18 +209,23 @@
     public function isValid(&$validationErrors = array())
     {
       if (!isset($_POST[$this->name])) {
-        $validationErrors[] = "Das Feld $this->displayName ist nicht gesetzt";
+        $validationErrors[] = "Der Input $this->displayName ist nicht ausgefüllt";
         return false;
       }
       if (empty($_POST[$this->name])) {
-        $validationErrors[] = "Das Feld $this->displayName ist leer";
+        $validationErrors[] = "Der Input $this->displayName ist leer";
         return false;
       }
       if (!filter_var($_POST[$this->name], 513)) {
-        $validationErrors[] = "Die Eingabe vom Feld $this->displayName ist nicht gültig";
+        $validationErrors[] = "Die Eingabe vom Input $this->displayName ist nicht gültig";
         return false;
       }
       return true;
+    }
+
+    protected function displayLabel()
+    {
+      echo "<label for='" . $this->name . "'>" . $this->displayName . ": </label>";
     }
 
     abstract public function displayAsFormElement();
@@ -268,12 +246,13 @@
 
     public function displayAsFormElement()
     {
-      echo "<label for='" . $this->name . "'>" . $this->displayName . "</label> 
-            <input 
-              type='checkbox' 
-              name='" . $this->name . "'
-              " . ($this->getValue() ? "checked" : "") . "/>
-            <br />";
+      parent::displayLabel();
+      echo  
+        "<input 
+          type='checkbox' 
+          name='" . $this->name . "'
+          " . ($this->getValue() ? "checked" : "") . "/>
+        <br />";
     }
   }
 
@@ -295,14 +274,77 @@
 
     public function displayAsFormElement()
     {
-      echo "<label for='" . $this->name . "'>" . $this->displayName . "</label> 
-            <input 
-              type='text' 
-              name='" . $this->name . "' 
-              value='" . $this->getValue() . "'/>
-            <br />";
+      parent::displayLabel();
+      echo
+        "<input 
+          type='text' 
+          name='" . $this->name . "' 
+          value='" . $this->getValue() . "'/>
+        <br />";
     }
   }
+
+  class SelectField extends Field
+  {
+    protected $selectableValues;
+
+    function __construct($name, $displayName, $selectableValues)
+    {
+      parent::__construct($name, $displayName);
+      $this->selectableValues = $selectableValues;
+    }
+
+    public function isValid(&$validationErrors = array())
+    {
+      if (!parent::isValid($validationErrors)) {
+        return false;
+      }
+
+      if (!in_array($_POST[$this->name], $this->selectableValues)) {
+        $validationErrors[] = "Ungültiger wert für " . $this->displayName . " ausgewählt.";
+        return false;
+      }
+
+      return true;
+    }
+
+    public function displayAsFormElement()
+    {
+      parent::displayLabel();
+
+      foreach ($this->selectableValues as $selectableValue) {
+        echo 
+          "<input 
+            type='radio' 
+            name='" . $this->name . "' 
+            value='" . $selectableValue . "'
+            " . ($this->getValue() == $selectableValue ? "checked" : "") . " />
+          " . $selectableValue;
+      }
+
+      echo "<br />";
+    }
+  }
+
+  // class MultiselectField extends Field
+  // {
+
+  // }
+
+  // class ParagraphField extends Field
+  // {
+
+  // }
+
+  // class EmailField extends Field
+  // {
+
+  // }
+
+  // class PasswordField extends Field
+  // {
+
+  // }
   ?>
 </body>
 
