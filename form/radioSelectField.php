@@ -40,4 +40,15 @@ class RadioSelectField extends Field
 
     echo "<br />";
   }
+
+  protected function getDisplayValue()
+  {
+    $value = $this->getValue();
+
+    foreach ($this->selectables as $selectable) {
+      if ($selectable["name"] == $value) {
+        return nl2br(htmlspecialchars($selectable["displayName"]));
+      }
+    }
+  }
 }

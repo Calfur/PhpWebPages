@@ -11,7 +11,7 @@ class SelectField extends Field
   {
     parent::__construct($name, $displayName);
     $this->selectables = $selectables;
-    if($size == 1){
+    if ($size == 1) {
       array_unshift($this->selectables, [
         "name" => "0",
         "displayName" => "Bitte wählen"
@@ -37,7 +37,7 @@ class SelectField extends Field
       return false;
     }
 
-    if($this->allowMultiple && !is_array($_POST[$this->name])){
+    if ($this->allowMultiple && !is_array($_POST[$this->name])) {
       $validationErrors[] = "Ungültige Werte für " . $this->displayName . " ausgewählt.";
       return false;
     }
@@ -64,14 +64,25 @@ class SelectField extends Field
     echo "</select><br />";
   }
 
-  private function isSelected($value) : bool
+  protected function getDisplayValue()
   {
-    if($this->allowMultiple)
-    {
+    $displayValues = array();
+
+    foreach ($this->selectables as $selectable) {
+      if ($this->isSelected($selectable["name"])) {
+        $displayValues[] = nl2br(htmlspecialchars($selectable["displayName"]));
+      }
+    }
+
+    return implode(", ", $displayValues);
+  }
+
+  private function isSelected($value): bool
+  {
+    if ($this->allowMultiple) {
       return in_array($value, $this->getValue());
-    } else
-    {
+    } else {
       return $value == $this->getValue();
-    }      
+    }
   }
 }

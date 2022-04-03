@@ -43,6 +43,16 @@ abstract class Field
     return true;
   }
 
+  public function displayValue()
+  {
+    echo "<b>" . $this->getDisplayName() . ": </b>" . $this->getDisplayValue() . "<br />";
+  }
+
+  protected function getDisplayValue()
+  {
+    return nl2br(htmlspecialchars($this->getValue()));
+  }
+
   protected function displayLabel()
   {
     echo "<label for='" . $this->name . "'>" . $this->displayName . ": </label>";

@@ -83,6 +83,11 @@ $fields = array(
     displayForm($fields);
   }
 
+  function filledFormGotReturned()
+  {
+    return isset($_POST["Submit"]) && !empty($_POST["Submit"]);
+  }
+
   function processFormContent($fields)
   {
     $ok = validateFields($fields, $validationErrors);
@@ -113,11 +118,6 @@ $fields = array(
     echo "</form>";
   }
 
-  function filledFormGotReturned()
-  {
-    return isset($_POST["Submit"]) && !empty($_POST["Submit"]);
-  }
-
   function validateFields($fields, &$validationErrors)
   {
     $ok = true;
@@ -134,14 +134,8 @@ $fields = array(
   function displayUserInputs($fields)
   {
     foreach ($fields as $field) {
+      $field->displayValue();
     }
-
-    $value =  $field->getValue();
-    if (gettype($value) == "array") {
-      $value = implode(", ", $value);
-    }
-    $value = nl2br(htmlspecialchars($value));
-    echo "<b>" . $field->getDisplayName() . ":</b> $value<br />";
   }
 
   function displayValidationErrors($validationErrors)
