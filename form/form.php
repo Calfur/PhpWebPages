@@ -60,7 +60,7 @@
       "displayName" => "Gegentribüne"
     ]
   ], true, 4);
-  $comment = new ParagraphField("comment", "Kommentare:");
+  $comment = new ParagraphField("comment", "Kommentare");
   $agb = new BooleanField("agb", "AGB", true);
 
   $fields = array($salutation, $prename, $surname, $email, $promoCode, $amount, $section, $comment, $agb);
@@ -68,26 +68,38 @@
   $validationErrors = array();
 
   if (filledFormGotReturned()) {
+    processFormContent($fields);
+  }
+
+  if (!$ok) {
+    displayForm($fields);
+  }
+
+  function processFormContent($fields){
     $ok = validateFields($fields, $validationErrors);
 
     if ($ok) {
-  ?>
-      <h1>Bestätigung</h1>
-      <p>Ihre Bestellung für WM-Tickets wurde mit den folgenden Daten angenommen:</p>
-    <?php
+      echo "<h1>Bestätigung</h1>";
+      echo "<p>Ihre Bestellung für WM-Tickets wurde mit den folgenden Daten angenommen:</p>";
 
-      displayUserInput($salutation->getValue(), $salutation->getDisplayName());
-      displayUserInput($prename->getValue(), $prename->getDisplayName());
-      displayUserInput($surname->getValue(), $surname->getDisplayName());
-      displayUserInput($email->getValue(), $email->getDisplayName());
-      displayUserInput($promoCode->getValue(), $promoCode->getDisplayName());
-      displayUserInput($amount->getValue(), $amount->getDisplayName());
-      displayUserInput($section->getValue(), $section->getDisplayName());
-      displayUserInput($comment->getValue(), $comment->getDisplayName());
-      displayUserInput($agb->getValue(), $agb->getDisplayName());
+      displayUserInputs($fields);
     } else {
+      echo "<p><b>Formular unvollst&auml;ndig</b></p>";
+
       displayValidationErrors($validationErrors);
     }
+  }
+
+  function displayForm($fields){
+    echo "<h1>WM-Ticketservice</h1>";
+    echo "<form method='post'>"; 
+
+    foreach($fields as $field){
+      $field->displayAsFormElement();
+    }
+    
+    echo "<input type='submit' name='Submit' value='Bestellung aufgeben' />";
+    echo "</form>";
   }
 
   function filledFormGotReturned()
@@ -108,44 +120,25 @@
     return $ok;
   }
 
-  function displayUserInput($input, $inputName)
+  function displayUserInputs($fields)
   {
-    if(gettype($input) == "array"){
-      $input = implode(", ", $input);
+    foreach($fields as $field){
+
     }
-    $input = nl2br(htmlspecialchars($input));
-    echo "<b>$inputName:</b> $input<br />";
+    
+    $value =  $field->getValue();
+    if(gettype($value) == "array"){
+      $value = implode(", ", $value);
+    }
+    $value = nl2br(htmlspecialchars($value));
+    echo "<b>".$field->getDisplayName().":</b> $value<br />";
   }
 
   function displayValidationErrors($validationErrors)
   {
-    echo "<p><b>Formular unvollst&auml;ndig</b></p>";
     echo "<ul><li>";
     echo implode("</li><li>", $validationErrors);
     echo "</li></ul>";
-  }
-
-  if (!$ok) {
-    //
-    // Das Formular wird entweder leer oder mit Vorgabewerten ausgegeben:
-    //
-    ?>
-    <h1>WM-Ticketservice</h1>
-    <form method="post">
-      <?php
-        $salutation->displayAsFormElement();
-        $prename->displayAsFormElement();
-        $surname->displayAsFormElement();
-        $email->displayAsFormElement();
-        $promoCode->displayAsFormElement();
-        $amount->displayAsFormElement();
-        $section->displayAsFormElement();
-        $comment->displayAsFormElement();
-        $agb->displayAsFormElement();
-      ?>
-      <input type="submit" name="Submit" value="Bestellung aufgeben" />
-    </form>
-  <?php
   }
 
   abstract class Field
