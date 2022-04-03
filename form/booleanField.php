@@ -3,7 +3,7 @@ include_once "field.php";
 
 class BooleanField extends Field
 {
-  protected bool $mustBeTrue; 
+  protected bool $mustBeTrue;
 
   function __construct($name, $displayName, $mustBeTrue)
   {
@@ -18,7 +18,7 @@ class BooleanField extends Field
 
   public function isValid(&$validationErrors = array())
   {
-    if($this->mustBeTrue && !$this->getValue()){
+    if ($this->mustBeTrue && !$this->getValue()) {
       $validationErrors[] = "Der Input '$this->displayName' muss ausgefüllt sein";
       return false;
     }
