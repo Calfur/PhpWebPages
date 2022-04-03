@@ -96,7 +96,7 @@ $fields = array(
       echo "<h1>Bestätigung</h1>";
       echo "<p>Ihre Bestellung für WM-Tickets wurde mit den folgenden Daten angenommen:</p>";
 
-      displayUserInputs($fields);
+      displayFieldValues($fields);
     } else {
       echo "<p><b>Formular unvollst&auml;ndig</b></p>";
 
@@ -131,7 +131,7 @@ $fields = array(
     return $ok;
   }
 
-  function displayUserInputs($fields)
+  function displayFieldValues($fields)
   {
     foreach ($fields as $field) {
       $field->displayValue();
