@@ -1,12 +1,12 @@
 <?php
-include_once "field.php";
-include_once "radioSelectField.php";
-include_once "stringField.php";
-include_once "emailField.php";
-include_once "selectField.php";
-include_once "passwordField.php";
-include_once "paragraphField.php";
-include_once "booleanField.php";
+include_once "fields/field.php";
+include_once "fields/radioSelectField.php";
+include_once "fields/stringField.php";
+include_once "fields/emailField.php";
+include_once "fields/selectField.php";
+include_once "fields/passwordField.php";
+include_once "fields/paragraphField.php";
+include_once "fields/booleanField.php";
 
 $fields = array(
   $salutation = new RadioSelectField("salutation", "Anrede", [
