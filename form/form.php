@@ -60,10 +60,10 @@
       "displayName" => "Gegentribüne"
     ]
   ], true, 4);
-  $Kommentare = (isset($_POST["Kommentare"]) && !empty($_POST["Kommentare"]) && filter_var($_POST['Kommentare'], 513)) ? $_POST["Kommentare"] : "";
+  $comment = new ParagraphField("comment", "Kommentare:");
   $agb = new BooleanField("agb", "AGB");
 
-  $fields = array($salutation, $prename, $surname, $amount, $section, $agb);
+  $fields = array($salutation, $prename, $surname, $amount, $promoCode, $section, $comment, $agb);
   $ok = false;
   $validationErrors = array();
 
@@ -83,7 +83,7 @@
       displayUserInput($promoCode->getValue(), $promoCode->getDisplayName());
       displayUserInput($amount->getValue(), $amount->getDisplayName());
       displayUserInput($section->getValue(), $section->getDisplayName());
-      displayUserInput($Kommentare, "Kommentare");
+      displayUserInput($comment->getValue(), $comment->getDisplayName());
       displayUserInput($agb->getValue(), $agb->getDisplayName());
     } else {
       displayValidationErrors($validationErrors);
@@ -111,10 +111,6 @@
     ) {
       $ok = false;
       $validationErrors[] = "E-Mail";
-    }
-    if (!isset($_POST["Kommentare"]) || empty($_POST["Kommentare"]) || !filter_var($_POST['Kommentare'], 513) || trim($_POST["Kommentare"]) == "") {
-      $ok = false;
-      $validationErrors[] = "Kommentare";
     }
 
     return $ok;
@@ -157,13 +153,7 @@
       $promoCode->displayAsFormElement();
       $amount->displayAsFormElement();
       $section->displayAsFormElement();
-      ?>
-
-      Kommentare/Anmerkungen
-      <textarea cols="70" rows="10" name="Kommentare"><?php
-                                                      echo htmlspecialchars($Kommentare);
-                                                      ?></textarea><br />
-      <?php
+      $comment->displayAsFormElement();
       $agb->displayAsFormElement();
       ?>
       <input type="submit" name="Submit" value="Bestellung aufgeben" />
@@ -389,10 +379,33 @@
     }
   }
 
-  // class ParagraphField extends Field
-  // {
+  class ParagraphField extends Field
+  {
+    public function isValid(&$validationErrors = array())
+    {
+      if (!parent::isValid($validationErrors)) {
+        return false;
+      }
 
-  // }
+      if (trim($_POST[$this->name]) == "") {
+        $validationErrors[] = "Das Feld $this->displayName ist leer";
+        return false;
+      }
+
+      return true;
+    }
+
+    public function displayAsFormElement()
+    {
+      parent::displayLabel();
+      echo "<textarea
+          cols='70' 
+          rows='10' 
+          name='" . $this->name . "'
+          >" . $this->getValue() . "</textarea>
+        <br />";
+    }
+  }
 
   // class EmailField extends Field
   // {
