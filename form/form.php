@@ -22,7 +22,7 @@
   ]);
   $prename = new StringField("prename", "Vorname");
   $surname = new StringField("surname", "Nachname");
-  $Email = (isset($_POST["Email"]) && !empty($_POST["Email"]) && filter_var($_POST['Email'], 513)) ? $_POST["Email"] : "";
+  $email = new EmailField("email", "E-Mail");
   $amount = new SelectField("amount", "Anzahl Karten", [
     [
       "name" => "1",
@@ -61,9 +61,9 @@
     ]
   ], true, 4);
   $comment = new ParagraphField("comment", "Kommentare:");
-  $agb = new BooleanField("agb", "AGB");
+  $agb = new BooleanField("agb", "AGB", true);
 
-  $fields = array($salutation, $prename, $surname, $amount, $promoCode, $section, $comment, $agb);
+  $fields = array($salutation, $prename, $surname, $email, $promoCode, $amount, $section, $comment, $agb);
   $ok = false;
   $validationErrors = array();
 
@@ -79,7 +79,7 @@
       displayUserInput($salutation->getValue(), $salutation->getDisplayName());
       displayUserInput($prename->getValue(), $prename->getDisplayName());
       displayUserInput($surname->getValue(), $surname->getDisplayName());
-      displayUserInput($Email, "E-Mail");
+      displayUserInput($email->getValue(), $email->getDisplayName());
       displayUserInput($promoCode->getValue(), $promoCode->getDisplayName());
       displayUserInput($amount->getValue(), $amount->getDisplayName());
       displayUserInput($section->getValue(), $section->getDisplayName());
@@ -103,14 +103,6 @@
       if (!$field->isValid($validationErrors)) {
         $ok = false;
       }
-    }
-
-    if (
-      !isset($_POST["Email"]) || empty($_POST["Email"]) || trim($_POST["Email"]) == "" ||
-      !preg_match('/^[a-zA-Z0-9_\-.]+@[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,6}$/', $_POST["Email"])
-    ) {
-      $ok = false;
-      $validationErrors[] = "E-Mail";
     }
 
     return $ok;
@@ -141,20 +133,15 @@
     <h1>WM-Ticketservice</h1>
     <form method="post">
       <?php
-      $salutation->displayAsFormElement();
-      $prename->displayAsFormElement();
-      $surname->displayAsFormElement();
-      ?>
-      E-Mail-Adresse <input type="text" name="Email" value="<?php
-                                                            echo htmlspecialchars($Email);
-                                                            ?>" /><br />
-      
-      <?php
-      $promoCode->displayAsFormElement();
-      $amount->displayAsFormElement();
-      $section->displayAsFormElement();
-      $comment->displayAsFormElement();
-      $agb->displayAsFormElement();
+        $salutation->displayAsFormElement();
+        $prename->displayAsFormElement();
+        $surname->displayAsFormElement();
+        $email->displayAsFormElement();
+        $promoCode->displayAsFormElement();
+        $amount->displayAsFormElement();
+        $section->displayAsFormElement();
+        $comment->displayAsFormElement();
+        $agb->displayAsFormElement();
       ?>
       <input type="submit" name="Submit" value="Bestellung aufgeben" />
     </form>
@@ -214,6 +201,14 @@
 
   class BooleanField extends Field
   {
+    protected bool $mustBeTrue; 
+
+    function __construct($name, $displayName, $mustBeTrue)
+    {
+      parent::__construct($name, $displayName);
+      $this->mustBeTrue = $mustBeTrue;
+    }
+
     public function getValue()
     {
       return isset($_POST[$this->name]);
@@ -222,6 +217,10 @@
     public function isValid(&$validationErrors = array())
     {
       // Booleans are always valid
+      if($this->mustBeTrue && !$this->getValue()){
+        $validationErrors[] = "Der Input '$this->displayName' muss ausgefüllt sein";
+        return false;
+      }
       return true;
     }
 
@@ -407,10 +406,36 @@
     }
   }
 
-  // class EmailField extends Field
-  // {
+  class EmailField extends Field
+  {
+    public function isValid(&$validationErrors = array()){
+      if (!parent::isValid($validationErrors)) {
+        return false;
+      }
+  
+      if (trim($_POST[$this->name]) == "") {
+        $validationErrors[] = "Das Feld $this->displayName ist leer";
+        return false;
+      }
 
-  // }
+      if(!preg_match('/^[a-zA-Z0-9_\-.]+@[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,6}$/', $_POST[$this->name])){
+        $validationErrors[] = "Das Feld $this->displayName enthält keine gültige E-Mail";
+        return false;
+      }
+
+      return true;
+    }
+
+    public function displayAsFormElement()
+    {
+      parent::displayLabel();
+      echo "<input 
+          type='email' 
+          name='" . $this->name . "' 
+          value='" . $this->getValue() . "'/>
+        <br />";
+    }
+  }
 
   class PasswordField extends Field
   {
