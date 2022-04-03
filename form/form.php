@@ -7,7 +7,7 @@
 <body>
   <?php
   //
-  // Die Daten werden in Variable gefüllt:
+  // Die Daten werden in Variablen gefüllt:
   //
 
   $salutation = new RadioSelectField("salutation", "Anrede", [
@@ -41,7 +41,7 @@
       "displayName" => "4"
     ]
   ], false, 1);
-  $Promo = (isset($_POST["Promo"]) && !empty($_POST["Promo"]) && filter_var($_POST['Promo'], 513)) ? $_POST["Promo"] : "";
+  $promoCode = new PasswordField("promoCode", "Promo-Code");
   $section = new SelectField("section", "Gew&uuml;nschte Sektion im Stadion", [
     [
       "name" => "north",
@@ -80,7 +80,7 @@
       displayUserInput($prename->getValue(), $prename->getDisplayName());
       displayUserInput($surname->getValue(), $surname->getDisplayName());
       displayUserInput($Email, "E-Mail");
-      displayUserInput($Promo, "Promo");
+      displayUserInput($promoCode->getValue(), $promoCode->getDisplayName());
       displayUserInput($amount->getValue(), $amount->getDisplayName());
       displayUserInput($section->getValue(), $section->getDisplayName());
       displayUserInput($Kommentare, "Kommentare");
@@ -100,7 +100,7 @@
     $ok = true;
 
     foreach ($fields as $field) {
-      if ($field->isValid($validationErrors)) {
+      if (!$field->isValid($validationErrors)) {
         $ok = false;
       }
     }
@@ -112,10 +112,6 @@
       $ok = false;
       $validationErrors[] = "E-Mail";
     }
-    if (!isset($_POST["Promo"]) || empty($_POST["Promo"]) || !filter_var($_POST['Promo'], 513) || trim($_POST["Promo"]) == "") {
-      $ok = false;
-      $validationErrors[] = "Promo";
-    }
     if (!isset($_POST["Kommentare"]) || empty($_POST["Kommentare"]) || !filter_var($_POST['Kommentare'], 513) || trim($_POST["Kommentare"]) == "") {
       $ok = false;
       $validationErrors[] = "Kommentare";
@@ -126,6 +122,9 @@
 
   function displayUserInput($input, $inputName)
   {
+    if(gettype($input) == "array"){
+      $input = implode(", ", $input);
+    }
     $input = nl2br(htmlspecialchars($input));
     echo "<b>$inputName:</b> $input<br />";
   }
@@ -153,11 +152,9 @@
       E-Mail-Adresse <input type="text" name="Email" value="<?php
                                                             echo htmlspecialchars($Email);
                                                             ?>" /><br />
-      Promo-Code <input type="password" name="Promo" value="<?php
-                                                            echo htmlspecialchars($Promo);
-                                                            ?>" /><br />
-
+      
       <?php
+      $promoCode->displayAsFormElement();
       $amount->displayAsFormElement();
       $section->displayAsFormElement();
       ?>
@@ -402,10 +399,32 @@
 
   // }
 
-  // class PasswordField extends Field
-  // {
+  class PasswordField extends Field
+  {
+    public function isValid(&$validationErrors = array())
+    {
+      if (!parent::isValid($validationErrors)) {
+        return false;
+      }
 
-  // }
+      if (trim($_POST[$this->name]) == "") {
+        $validationErrors[] = "Das Feld $this->displayName ist leer";
+        return false;
+      }
+
+      return true;
+    }
+
+    public function displayAsFormElement()
+    {
+      parent::displayLabel();
+      echo "<input 
+          type='password' 
+          name='" . $this->name . "' 
+          value='" . $this->getValue() . "'/>
+        <br />";
+    }
+  }
   ?>
 </body>
 
