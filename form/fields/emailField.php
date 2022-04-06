@@ -10,12 +10,12 @@ class EmailField extends Field
     }
 
     if (trim($_POST[$this->name]) == "") {
-      $validationErrors[] = "Das Feld $this->displayName ist leer";
+      $validationErrors[] = "Das Feld '$this->displayName' ist leer";
       return false;
     }
 
     if (!preg_match('/^[a-zA-Z0-9_\-.]+@[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,6}$/', $_POST[$this->name])) {
-      $validationErrors[] = "Das Feld $this->displayName enthält keine gültige E-Mail";
+      $validationErrors[] = "Das Feld '$this->displayName' enthält keine gültige E-Mail";
       return false;
     }
 

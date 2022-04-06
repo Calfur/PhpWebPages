@@ -38,7 +38,12 @@ class SelectField extends Field
     }
 
     if ($this->allowMultiple && !is_array($_POST[$this->name])) {
-      $validationErrors[] = "Ungültige Werte für " . $this->displayName . " ausgewählt.";
+      $validationErrors[] = "Ungültige Werte für '" . $this->displayName . "' ausgewählt.";
+      return false;
+    }
+
+    if (!in_array($_POST[$this->name], array_column($this->selectables, "name"))) {
+      $validationErrors[] = "Ungültiger Wert für '" . $this->displayName . "' ausgewählt.";
       return false;
     }
 

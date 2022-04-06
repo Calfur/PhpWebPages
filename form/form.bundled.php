@@ -218,12 +218,12 @@ class EmailField extends Field
     }
 
     if (trim($_POST[$this->name]) == "") {
-      $validationErrors[] = "Das Feld $this->displayName ist leer";
+      $validationErrors[] = "Das Feld '$this->displayName' ist leer";
       return false;
     }
 
     if (!preg_match('/^[a-zA-Z0-9_\-.]+@[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,6}$/', $_POST[$this->name])) {
-      $validationErrors[] = "Das Feld $this->displayName enthält keine gültige E-Mail";
+      $validationErrors[] = "Das Feld '$this->displayName' enthält keine gültige E-Mail";
       return false;
     }
 
@@ -252,7 +252,7 @@ class ParagraphField extends Field
     }
 
     if (trim($_POST[$this->name]) == "") {
-      $validationErrors[] = "Das Feld $this->displayName ist leer";
+      $validationErrors[] = "Das Feld '$this->displayName' ist leer";
       return false;
     }
 
@@ -282,7 +282,7 @@ class PasswordField extends Field
     }
 
     if (trim($_POST[$this->name]) == "") {
-      $validationErrors[] = "Das Feld $this->displayName ist leer";
+      $validationErrors[] = "Das Feld '$this->displayName' ist leer";
       return false;
     }
 
@@ -319,7 +319,7 @@ class RadioSelectField extends Field
     }
 
     if (!in_array($_POST[$this->name], array_column($this->selectables, "name"))) {
-      $validationErrors[] = "Ungültiger Wert für " . $this->displayName . " ausgewählt.";
+      $validationErrors[] = "Ungültiger Wert für '" . $this->displayName . "' ausgewählt.";
       return false;
     }
 
@@ -392,7 +392,12 @@ class SelectField extends Field
     }
 
     if ($this->allowMultiple && !is_array($_POST[$this->name])) {
-      $validationErrors[] = "Ungültige Werte für " . $this->displayName . " ausgewählt.";
+      $validationErrors[] = "Ungültige Werte für '" . $this->displayName . "' ausgewählt.";
+      return false;
+    }
+
+    if (!in_array($_POST[$this->name], array_column($this->selectables, "name"))) {
+      $validationErrors[] = "Ungültiger Wert für '" . $this->displayName . "' ausgewählt.";
       return false;
     }
 
@@ -452,7 +457,7 @@ class StringField extends Field
     }
 
     if (trim($_POST[$this->name]) == "") {
-      $validationErrors[] = "Das Feld $this->displayName ist leer";
+      $validationErrors[] = "Das Feld '$this->displayName' ist leer";
       return false;
     }
 

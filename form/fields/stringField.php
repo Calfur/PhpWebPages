@@ -10,7 +10,7 @@ class StringField extends Field
     }
 
     if (trim($_POST[$this->name]) == "") {
-      $validationErrors[] = "Das Feld $this->displayName ist leer";
+      $validationErrors[] = "Das Feld '$this->displayName' ist leer";
       return false;
     }
 

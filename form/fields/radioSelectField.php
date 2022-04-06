@@ -18,7 +18,7 @@ class RadioSelectField extends Field
     }
 
     if (!in_array($_POST[$this->name], array_column($this->selectables, "name"))) {
-      $validationErrors[] = "Ungültiger Wert für " . $this->displayName . " ausgewählt.";
+      $validationErrors[] = "Ungültiger Wert für '" . $this->displayName . "' ausgewählt.";
       return false;
     }
 
