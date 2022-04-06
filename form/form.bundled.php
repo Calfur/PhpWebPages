@@ -141,11 +141,10 @@ $fields = array(
 
 </html>
 
-<!-- 
-  Field classes 
--->
-
 <?php
+/*
+  field classes
+*/
 
 abstract class Field
 {
