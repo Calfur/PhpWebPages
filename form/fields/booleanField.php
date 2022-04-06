@@ -5,7 +5,7 @@ class BooleanField extends Field
 {
   protected bool $mustBeTrue;
 
-  function __construct($name, $displayName, $mustBeTrue)
+  function __construct($name, $displayName, $mustBeTrue = false)
   {
     parent::__construct($name, $displayName);
     $this->mustBeTrue = $mustBeTrue;

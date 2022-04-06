@@ -7,7 +7,7 @@ class SelectField extends Field
   protected bool $allowMultiple;
   protected int $size;
 
-  function __construct($name, $displayName, $selectables, $allowMultiple, $size)
+  function __construct($name, $displayName, $selectables, $allowMultiple = false, $size = 1)
   {
     parent::__construct($name, $displayName);
     $this->selectables = $selectables;
