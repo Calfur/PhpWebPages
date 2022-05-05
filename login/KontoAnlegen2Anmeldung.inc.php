@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="de">
 
 <?php
@@ -9,31 +9,33 @@
 	* alle inc-Dateien in separaten Ordner, der für die Benutzer
 	  nicht zugänglich ist. 
 	* für Benutzer nur index.php zulassen
-*/	
+*/
 if (!isset($_SESSION['status'])) {
 	header('Location: ../index.php');
-exit;
+	exit;
 } else {
-?> 
+?>
 
-<head>
-  <title><?php echo $titel ?></title> 
-  <meta charset="UTF-8">
-  <link rel="stylesheet" type="text/css" href="schutz/style.css">
-</head> 
-<body>
+	<head>
+		<title><?php echo $titel ?></title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="schutz/style.css">
+	</head>
 
-	<form method="post">
-	<h1>Statuswechsel von Konto anlegen zu Anmeldung</h1>
-	Sie haben das Konto erfolgreich angelegt: <?php echo $email ?><br>
-	<hr/>
-	Mit OK k&ouml;nnen sich anmelden. <br>
-	<input type="submit" value="OK">
-	</form>
+	<body>
 
-</body>
+		<form method="post">
+			<h1>Statuswechsel von Konto anlegen zu Anmeldung</h1>
+			Sie haben das Konto erfolgreich angelegt: <?php echo $email ?><br>
+			<hr />
+			Mit OK k&ouml;nnen sich anmelden. <br>
+			<input type="submit" value="OK">
+		</form>
+
+	</body>
+
 </html>
 
 <?php
-}	
+}
 ?>

@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="de">
 
 <?php
@@ -9,39 +9,40 @@
 	* alle inc-Dateien in separaten Ordner, der für die Benutzer
 	  nicht zugänglich ist. 
 	* für Benutzer nur index.php zulassen
-*/	
+*/
 if (!isset($_SESSION['status'])) {
 	header('Location: ../index.php');
-exit;
+	exit;
 } else {
-?> 
+?>
 
-<head>
-  <title><?php echo $titel ?></title> 
-  <meta charset="UTF-8">
-  <link rel="stylesheet" type="text/css" href="schutz/style.css">
-</head> 
-<body>
+	<head>
+		<title><?php echo $titel ?></title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="schutz/style.css">
+	</head>
 
-	<form method="post">
-	<h1>Status: Webshop</h1>
+	<body>
 
-	<?php echo "Willkommen zum internen Bereich auf unserem Webshop!"."<br>"."<br>"; ?>
-		
-		<img src="schutz\Webshop.jpg" width="200" height="200"></img>
-		
-	<?php echo "<br>"."<br>"."Bildquelle: https://insight.nhtv.nl/tag/webshop/" ?>
+		<form method="post">
+			<h1>Status: Webshop</h1>
 
-	<hr>
-	Sobald Sie den Webshop verlassen, erhalten Sie eine neue Session.
-	Hier k&ouml;nnen Sie sich abmelden:<br>
-	<input type="submit" name="abmelden" value="OK"><br>
-	</form> 
-	
-</body>
+			<?php echo "Willkommen zum internen Bereich auf unserem Webshop!" . "<br>" . "<br>"; ?>
+
+			<img src="schutz\Webshop.jpg" width="200" height="200"></img>
+
+			<?php echo "<br>" . "<br>" . "Bildquelle: https://insight.nhtv.nl/tag/webshop/" ?>
+
+			<hr>
+			Sobald Sie den Webshop verlassen, erhalten Sie eine neue Session.
+			Hier k&ouml;nnen Sie sich abmelden:<br>
+			<input type="submit" name="abmelden" value="OK"><br>
+		</form>
+
+	</body>
 
 </html>
 
 <?php
-}	
+}
 ?>
