@@ -11,7 +11,7 @@
 	* für Benutzer nur index.php zulassen
 */
 if (!isset($_SESSION['status'])) {
-	header('Location: ../index.php');
+	header('Location: ../login/index.php');
 	exit;
 } else {
 ?>
