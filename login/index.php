@@ -9,13 +9,13 @@ $showFormular = TRUE;
 $error = FALSE;
 
 // In der Datei modeldb.inc.php wird die Klasse 'Database' deklariert.
-// Sie verfügt über eine Methode 'getConnection', die den Verweis auf den Datenbankzugriff enthält.
+// Sie verfï¿½gt ï¿½ber eine Methode 'getConnection', die den Verweis auf den Datenbankzugriff enthï¿½lt.
 $database = new Database(); 
 $dbConnection = $database->getConnection();
 
 // In der Datei 'modelkunde.inc.php' wird die Klasse 'Kunde' deklariert.
 // Als Input wird der Verweis auf den Datenbankzugriff mitgegeben.
-// Die Klasse enthält Lese- und Schreibfunktionen auf die Datenbank.
+// Die Klasse enthï¿½lt Lese- und Schreibfunktionen auf die Datenbank.
 $kunde = new kunde($dbConnection); 
 $kundetmp = $kunde;
 
@@ -74,7 +74,7 @@ if ($_SESSION['angemeldet'] == TRUE && $_SESSION['status'] == "Webshop") {
 	}  
 }
 
-// Im Status 'KontodatenLesen' wechselt man in den Status 'Webshop' zurück durch... 
+// Im Status 'KontodatenLesen' wechselt man in den Status 'Webshop' zurï¿½ck durch... 
 // ...Klick auf den Button 'zum Webshop'. 
 // Im Status 'KontodatenLesen' verbleibt man durch...
 // ...Klick auf den Browserbutton 'Aktuelle Seite neu laden'.
@@ -93,14 +93,14 @@ switch ($_SESSION['status']) {
 		$passw = (isset($_POST["passw"]) && is_string($_POST["passw"])) ? htmlspecialchars($_POST["passw"]) : "";
 		
 		if (isset($_POST['anmelden']))  {
-			// Formular wurde bereits einmal ausgefüllt 
+			// Formular wurde bereits einmal ausgefï¿½llt 
 			if(strlen($email) == 0) {
 				$errorMessage = 'Bitte geben Sie ein Konto an. <br>';
 				$error = true;
 			} else {
 				// Zugriff auf Datenbank: 
 				$kundetmp = $kunde->getLoginInfoByEmail($email);
-				//Überprüfung des Passworts: 
+				//ï¿½berprï¿½fung des Passworts: 
 				if ($kundetmp == TRUE && password_verify($passw, $kundetmp['passw'])) {
 					// Anmeldung war erfolgreich, da Mailadresse vorhanden und Passwort stimmt 
 					$_SESSION['kundeid'] = htmlspecialchars($kundetmp['id']);
@@ -109,13 +109,13 @@ switch ($_SESSION['status']) {
 					$_SESSION['email'] = $email;
 					// In produktiven Systemen wird eine Kunden-Id aus der DB nie ausgegeben!
 					include 'schutz\Anmeldung2Webshop.inc.php';
-					// Beim nächsten Durchgang ist eine neue Session gefordert: 
+					// Beim nï¿½chsten Durchgang ist eine neue Session gefordert: 
 					session_regenerate_id();
 /*					Alternative: Geltungsdauer des Cookies im Browser auf 0 setzen
 					if (ini_get("session.use_cookies")) {
 					    $params = session_get_cookie_params();
-					    // folgender Befehl ist nötig, sonst wird 
-					    // beim nächsten Durchgang keine neue Session erzeugt:
+					    // folgender Befehl ist nï¿½tig, sonst wird 
+					    // beim nï¿½chsten Durchgang keine neue Session erzeugt:
 					    setcookie(session_name(), '', 0, $params["path"],
 				        	$params["domain"], $params["secure"], $params["httponly"]
 					    );
@@ -146,7 +146,7 @@ switch ($_SESSION['status']) {
 		$passwConfirm = (isset($_POST["passwConfirm"]) && is_string($_POST["passwConfirm"])) ? htmlspecialchars($_POST["passwConfirm"]) : "";
 
 		if (isset($_POST['KontoAnlegen'])) {
-			// Formular wurde bereits einmal ausgefüllt 
+			// Formular wurde bereits einmal ausgefï¿½llt 
 			  
 			if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 				echo 'Bitte eine g&uuml;ltige E-Mail-Adresse eingeben<br>';
@@ -197,9 +197,7 @@ switch ($_SESSION['status']) {
     case "KontodatenLesen":
 		$titel = 'Kontodaten lesen';
 			
-			// Zugriff auf Datenbank: 
-/*			... <-- Hier ist Code zu ergänzen. 1. von 2 Arbeiten
-			include 'schutz\KontodatenLesen.inc.php'; // <-- Diese Datei ist zu ergänzen. 2. von 2 Arbeiten
-*/        break;			   
+			include 'schutz\KontodatenLesen.inc.php'; // <-- Diese Datei ist zu ergï¿½nzen. 2. von 2 Arbeiten
+        break;			   
 }
 ?>
