@@ -22,6 +22,14 @@ exit;
   <link rel="stylesheet" type="text/css" href="schutz/style.css">
 </head> 
 <body>
+    <?php 
+        foreach($kunde->GetAllKunde() as $customer){
+            foreach($customer as $key => $value){
+                echo '<b>' . $key . '</b>: ';
+                echo $value . '<br>';
+            }
+        }
+    ?>
     <form method="post">
         <input type="submit" name="zumWebshop" value="Zum Webshop">
     </form>
