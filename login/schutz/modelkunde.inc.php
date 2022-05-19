@@ -58,7 +58,7 @@ class Kunde {
 	// * 'email' 
 	// * Das Passwort 'passw' wird nicht im Klartext eingetragen, sondern der Hashwert.
 	// Die Antwort sagt, ob der Eintrag möglich war:
-	public function changeKundePasswordByEmail($emailLoc, $newPasswordLoc) {
+	public function setKundePasswordByEmail($emailLoc, $newPasswordLoc) {
 		$passw_hash = password_hash($newPasswordLoc, PASSWORD_DEFAULT);
 		$statement = $this->connect->prepare("INSERT INTO $this->table_name (email, passw) VALUES (:tmpemail, :tmppassw)");
 		$result = $statement->execute(array('tmpemail' => $emailLoc, 'tmppassw' => $passw_hash));

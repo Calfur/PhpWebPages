@@ -26,7 +26,7 @@ exit;
 	<form method="post">
 	<h1>Statuswechsel von Anmeldung zu Webshop</h1>
 	Sie wurden als Benutzer mit der Nummer <?php echo $_SESSION['kundeid'] ?> erfolgreich angemeldet. <br>
-	Ihre jetzige Session <?php echo session_id() ?> wird beendet.<br>
+	Ihre jetzige Session <?php echo $_SESSION['sessionZuBeginn'] ?> wird beendet.<br>
 	Sie erhalten in unserem Webshop eine neue Session.<br> 
 	<input type="submit" value="OK">
 	</form>

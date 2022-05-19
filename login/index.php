@@ -2,20 +2,18 @@
 session_start();
 include 'schutz\modeldb.inc.php';
 include 'schutz\modelkunde.inc.php';
-// In produktiven Systemen darf die Session-ID nie ausgegeben werden!
-echo "Aktuelle Session: ".session_id()."<br>"."<br>"; 
 $errorMessage = '';
 $showFormular = TRUE;
 $error = FALSE;
 
 // In der Datei modeldb.inc.php wird die Klasse 'Database' deklariert.
-// Sie verfï¿½gt ï¿½ber eine Methode 'getConnection', die den Verweis auf den Datenbankzugriff enthï¿½lt.
+// Sie verfügt über eine Methode 'getConnection', die den Verweis auf den Datenbankzugriff enthält.
 $database = new Database(); 
 $dbConnection = $database->getConnection();
 
 // In der Datei 'modelkunde.inc.php' wird die Klasse 'Kunde' deklariert.
 // Als Input wird der Verweis auf den Datenbankzugriff mitgegeben.
-// Die Klasse enthï¿½lt Lese- und Schreibfunktionen auf die Datenbank.
+// Die Klasse enthält Lese- und Schreibfunktionen auf die Datenbank.
 $kunde = new kunde($dbConnection); 
 $kundetmp = $kunde;
 
@@ -71,10 +69,12 @@ if ($_SESSION['angemeldet'] == TRUE && $_SESSION['status'] == "Webshop") {
 	}	
 	if (isset($_POST['abmelden'])) {
 		$_SESSION['status'] = "Anmeldung";
+		// Beim Abmelden muss die Session erneuert werden:
+		session_regenerate_id();
 	}  
 }
 
-// Im Status 'KontodatenLesen' wechselt man in den Status 'Webshop' zurï¿½ck durch... 
+// Im Status 'KontodatenLesen' wechselt man in den Status 'Webshop' zurück durch... 
 // ...Klick auf den Button 'zum Webshop'. 
 // Im Status 'KontodatenLesen' verbleibt man durch...
 // ...Klick auf den Browserbutton 'Aktuelle Seite neu laden'.
@@ -83,6 +83,10 @@ if ($_SESSION['angemeldet'] == TRUE && $_SESSION['status'] == "KontodatenLesen")
 		$_SESSION['status'] = "Webshop";
 	} 
 }
+
+// In produktiven Systemen darf die Session-ID nie ausgegeben werden!
+echo "Aktuelle Session: ".session_id()."<br>"."<br>"; 
+$_SESSION['sessionZuBeginn'] = session_id(); 
 
 switch ($_SESSION['status']) {
 	
@@ -93,29 +97,28 @@ switch ($_SESSION['status']) {
 		$passw = (isset($_POST["passw"]) && is_string($_POST["passw"])) ? htmlspecialchars($_POST["passw"]) : "";
 		
 		if (isset($_POST['anmelden']))  {
-			// Formular wurde bereits einmal ausgefï¿½llt 
+			// Formular wurde bereits einmal ausgefüllt 
 			if(strlen($email) == 0) {
 				$errorMessage = 'Bitte geben Sie ein Konto an. <br>';
 				$error = true;
 			} else {
 				// Zugriff auf Datenbank: 
 				$kundetmp = $kunde->getLoginInfoByEmail($email);
-				//ï¿½berprï¿½fung des Passworts: 
+				//Überprüfung des Passworts: 
 				if ($kundetmp == TRUE && password_verify($passw, $kundetmp['passw'])) {
 					// Anmeldung war erfolgreich, da Mailadresse vorhanden und Passwort stimmt 
 					$_SESSION['kundeid'] = htmlspecialchars($kundetmp['id']);
 					$_SESSION['angemeldet'] = TRUE; 
 					$_SESSION['status'] = "Webshop";
 					$_SESSION['email'] = $email;
-					// In produktiven Systemen wird eine Kunden-Id aus der DB nie ausgegeben!
-					include 'schutz\Anmeldung2Webshop.inc.php';
-					// Beim nï¿½chsten Durchgang ist eine neue Session gefordert: 
+					// Beim nächsten Durchgang ist eine neue Session gefordert.
+					// Vor session_regenerate_id(); darf keine Ausgabe im Client erfolgen.
 					session_regenerate_id();
 /*					Alternative: Geltungsdauer des Cookies im Browser auf 0 setzen
 					if (ini_get("session.use_cookies")) {
 					    $params = session_get_cookie_params();
-					    // folgender Befehl ist nï¿½tig, sonst wird 
-					    // beim nï¿½chsten Durchgang keine neue Session erzeugt:
+					    // folgender Befehl ist nötig, sonst wird 
+					    // beim nächsten Durchgang keine neue Session erzeugt:
 					    setcookie(session_name(), '', 0, $params["path"],
 				        	$params["domain"], $params["secure"], $params["httponly"]
 					    );
@@ -123,6 +126,8 @@ switch ($_SESSION['status']) {
 						echo "<br>Kein Cookie vorhanden.<br>";	
 					}
 */		
+					// In produktiven Systemen wird eine Kunden-Id aus der DB nie ausgegeben!
+					include 'schutz\Anmeldung2Webshop.inc.php';
 					
 					// nach der Anzeige des Statuswechsel soll das Formular nicht angezeigt werden:
 					$showFormular = false;
@@ -146,7 +151,7 @@ switch ($_SESSION['status']) {
 		$passwConfirm = (isset($_POST["passwConfirm"]) && is_string($_POST["passwConfirm"])) ? htmlspecialchars($_POST["passwConfirm"]) : "";
 
 		if (isset($_POST['KontoAnlegen'])) {
-			// Formular wurde bereits einmal ausgefï¿½llt 
+			// Formular wurde bereits einmal ausgefüllt 
 			  
 			if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 				echo 'Bitte eine g&uuml;ltige E-Mail-Adresse eingeben<br>';
@@ -170,7 +175,7 @@ switch ($_SESSION['status']) {
 				 
 				if(!$error) { 
 					// Die Mailadresse ist noch frei und kann in die DB eingetrgen werden
-					if($kunde->changekundePasswordByEmail($email, $passw)) { 
+					if($kunde->setkundePasswordByEmail($email, $passw)) { 
 						include 'schutz\KontoAnlegen2Anmeldung.inc.php';
 						$_SESSION['status'] = "Anmeldung";
 						// nach der Anzeige des Statuswechsel soll das Formular nicht angezeigt werden:
@@ -197,7 +202,9 @@ switch ($_SESSION['status']) {
     case "KontodatenLesen":
 		$titel = 'Kontodaten lesen';
 			
-			include 'schutz\KontodatenLesen.inc.php'; // <-- Diese Datei ist zu ergï¿½nzen. 2. von 2 Arbeiten
-        break;			   
+			// Zugriff auf Datenbank: 
+/*			... <-- Hier ist Code zu ergänzen. 1. von 2 Arbeiten
+			include 'schutz\KontodatenLesen.inc.php'; // <-- Diese Datei ist zu ergänzen. 2. von 2 Arbeiten
+*/       break;			   
 }
 ?>
