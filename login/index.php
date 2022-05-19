@@ -175,7 +175,7 @@ switch ($_SESSION['status']) {
 				 
 				if(!$error) { 
 					// Die Mailadresse ist noch frei und kann in die DB eingetrgen werden
-					if($kunde->setkundePasswordByEmail($email, $passw)) { 
+					if($kunde->setKundePasswordByEmail($email, $passw)) { 
 						include 'schutz\KontoAnlegen2Anmeldung.inc.php';
 						$_SESSION['status'] = "Anmeldung";
 						// nach der Anzeige des Statuswechsel soll das Formular nicht angezeigt werden:
@@ -203,8 +203,50 @@ switch ($_SESSION['status']) {
 		$titel = 'Kontodaten lesen';
 			
 			// Zugriff auf Datenbank: 
-/*			... <-- Hier ist Code zu ergänzen. 1. von 2 Arbeiten
-			include 'schutz\KontodatenLesen.inc.php'; // <-- Diese Datei ist zu ergänzen. 2. von 2 Arbeiten
-*/       break;			   
+			$kundetmp = $kunde->getEmailAndRightsByEmail($_SESSION['email']);
+			if ($kundetmp == TRUE && $kundetmp['aclallaccounts'] == 'R') {
+				// R ist in DB enthalten --> Benutzer darf alle Konti lesen 
+				// echo "R ist enthalten."."<br>";
+
+				// Zugriff auf Datenbank: 
+				$kundetmp = $kunde->getAllKunde($_SESSION['email']);
+				/*
+				echo "<br>"."*** print_r ***"."<br>";
+				print_r($kundetmp);
+				echo "<br>"."*** var_dump ***"."<br>";
+				var_dump ($kundetmp);
+				echo "<br>";
+				echo "<br>";
+				*/
+				$kontodaten = "***"."<br>";
+				foreach($kundetmp as $u) {
+				   	$kontodaten = $kontodaten."E-Mail als Benutzerkonto: "."<b>".$u['email']."</b><br>";
+				   	$kontodaten = $kontodaten."Vorname: "."<b>".$u['vorname']."</b><br>";
+				   	$kontodaten = $kontodaten."Nachname: "."<b>".$u['nachname']."</b><br>";
+				   	$kontodaten = $kontodaten."created_at: "."<b>".$u['created_at']."</b><br>";
+				   	$kontodaten = $kontodaten."updated_at: "."<b>".$u['updated_at']."</b><br>";
+				   	$kontodaten = $kontodaten."aclallaccounts: "."<b>".$u['aclallaccounts']."</b><br>";
+					$kontodaten = $kontodaten."***"."<br>";
+					
+				}				
+
+			} else {
+				
+				// R ist in DB nicht enthalten --> Benutzer darf nur eigenes Konto lesen 
+				// echo "R ist nicht enthalten."."<br>";
+				
+				// Zugriff auf Datenbank: 
+				$kundetmp = $kunde->getKundeInfoByEmail($_SESSION['email']);
+				$kontodaten = "***"."<br>";
+			   	$kontodaten = $kontodaten."E-Mail als Benutzerkonto: "."<b>".$kundetmp['email']."</b><br>";
+			   	$kontodaten = $kontodaten."Vorname: "."<b>".$kundetmp['vorname']."</b><br>";
+			   	$kontodaten = $kontodaten."Nachname: "."<b>".$kundetmp['nachname']."</b><br>";
+			   	$kontodaten = $kontodaten."created_at: "."<b>".$kundetmp['created_at']."</b><br>";
+			   	$kontodaten = $kontodaten."updated_at: "."<b>".$kundetmp['updated_at']."</b><br>";
+				$kontodaten = $kontodaten."***"."<br>";
+				
+			}
+			include 'schutz\KontodatenLesen.inc.php';
+        break;			   
 }
 ?>

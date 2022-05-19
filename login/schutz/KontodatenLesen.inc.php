@@ -4,7 +4,7 @@
 <?php
 /*  Sollte diese Datei direkt aufgerufen werden, 
 	wird man auf die Startseite weitergeleitet.
-	(Ansonsten würde eine unerwünschte Fehlermeldung erzeugt.)
+	(Ansonsten würde der Webshop ohne Anmeldung angezeigt.)
 	Weitere Verbesserungen auf Webserver:
 	* alle inc-Dateien in separaten Ordner, der für die Benutzer
 	  nicht zugänglich ist. 
@@ -22,18 +22,21 @@ exit;
   <link rel="stylesheet" type="text/css" href="schutz/style.css">
 </head> 
 <body>
-    <?php 
-        foreach($kunde->GetAllKunde() as $customer){
-            foreach($customer as $key => $value){
-                echo '<b>' . $key . '</b>: ';
-                echo $value . '<br>';
-            }
-        }
-    ?>
-    <form method="post">
-        <input type="submit" name="zumWebshop" value="Zum Webshop">
-    </form>
+
+	<form method="post">
+	<h1>Status: Kontodaten lesen</h1>
+
+	<?php echo "Willkommen im internen Bereich beim Kontodaten lesen!"."<br>"."<br>"; ?>
+	Hier sind die Kontodaten: <br>
+	<?php echo $kontodaten ?>
+	<hr>
+	Hier kommen Sie zur&uuml;ck zum Webshop:<br>
+	<input type="submit" name="zumWebshop" value="Zum Webshop"><br>
+	<hr>
+	</form> 
+	
 </body>
+
 </html>
 
 <?php
